@@ -18,12 +18,18 @@ type Shape = {
     startY: number;
     endX: number;
     endY: number;
+} | {
+    type: "eraser";
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 
 export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
     const ctx = canvas.getContext("2d");
 
-    let existingShapes: Shape[] = await getExistingShapes(roomId)
+    const existingShapes: Shape[] = await getExistingShapes(roomId) // added const instead of let
 
     if (!ctx) {
         return
