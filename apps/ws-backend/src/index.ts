@@ -137,3 +137,7 @@ wss.on('connection', function connection(ws, request) {
   });
 });
 
+wss.on('listening', () => {
+  console.log('WebSocket server is running on ws://localhost:8080');
+});
+

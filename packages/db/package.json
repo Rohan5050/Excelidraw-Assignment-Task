@@ -6,8 +6,9 @@
     "./client": "./src/index.ts"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "migrate": "cd apps/packages/db && npx prisma migrate deploy",
+  "build": "next build"
+ },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*"
   },
