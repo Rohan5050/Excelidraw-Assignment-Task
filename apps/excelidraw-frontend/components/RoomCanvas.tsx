@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { WS_URL } from "@/config";
 import { initDraw } from "@/draw";

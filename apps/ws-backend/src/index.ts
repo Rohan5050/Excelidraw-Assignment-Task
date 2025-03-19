@@ -57,7 +57,7 @@ wss.on('connection', function connection(ws, request) {
     if (typeof data !== "string") {
       parsedData = JSON.parse(data.toString());
     } else {
-      parsedData = JSON.parse(data); // {type: "join-room", roomId: 1}
+      parsedData = JSON.parse(data);
     }
 
     if (parsedData.type === "join_room") {
@@ -77,29 +77,63 @@ wss.on('connection', function connection(ws, request) {
     console.log(parsedData);
 
     if (parsedData.type === "chat") {
-      const roomId = parsedData.roomId;
-      const message = parsedData.message;
+      try {
+        const roomId = parsedData.roomId;
+        const message = parsedData.message;
 
-      await prismaClient.chat.create({
-        data: {
-          roomId: Number(roomId),
-          message,
-          userId
-        }
-      });
+        // Verify user exists
+        const userExists = await prismaClient.user.findUnique({
+          where: { id: userId }
+        });
 
-      users.forEach(user => {
-        if (user.rooms.includes(roomId)) {
-          user.ws.send(JSON.stringify({
-            type: "chat",
-            message: message,
-            roomId
-          }))
+        if (!userExists) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: 'User not found'
+          }));
+          return;
         }
-      })
+
+        // Verify room exists
+        const roomExists = await prismaClient.room.findUnique({
+          where: { id: roomId }
+        });
+
+        if (!roomExists) {
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Room not found'
+          }));
+          return;
+        }
+
+        // Create the chat message
+        await prismaClient.chat.create({
+          data: {
+            roomId: Number(roomId),
+            message,
+            userId
+          }
+        });
+
+        // Broadcast to users in the room (keeping existing functionality)
+        users.forEach(user => {
+          if (user.rooms.includes(roomId)) {
+            user.ws.send(JSON.stringify({
+              type: "chat",
+              message: message,
+              roomId
+            }))
+          }
+        })
+      } catch (error) {
+        console.error('Error processing chat message:', error);
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: 'Failed to process message'
+        }));
+      }
     }
-
   });
-
 });
 
