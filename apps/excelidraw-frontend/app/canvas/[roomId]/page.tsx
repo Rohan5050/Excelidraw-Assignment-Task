@@ -1,11 +1,13 @@
 import { RoomCanvas } from "@/components/RoomCanvas";
 
+type tParams = Promise<{ roomId: string}>;
+
 interface PageProps {
-  // Allow params to be either a plain object or a Promise that resolves to the object.
-  params: { roomId: string } | Promise<{ roomId: string }>;
+  params: tParams;
 }
 
 export default async function CanvasPage({ params }: PageProps) {
-  const resolvedParams = await params;
-  return <RoomCanvas roomId={resolvedParams.roomId} />;
+  const { roomId } = await params;
+
+  return <RoomCanvas roomId={roomId} />;
 }
