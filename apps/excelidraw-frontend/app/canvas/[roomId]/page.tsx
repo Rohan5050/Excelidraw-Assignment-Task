@@ -1,13 +1,10 @@
 import { RoomCanvas } from "@/components/RoomCanvas";
 
-type tParams = Promise<{ roomId: string}>;
-
 interface PageProps {
-  params: tParams;
+  params: { roomId: string }; // Type matches route parameter
 }
 
-export default async function CanvasPage({ params }: PageProps) {
-  const { roomId } = await params;
-
-  return <RoomCanvas roomId={roomId} />;
+export default function CanvasPage({ params }: PageProps) {
+  // Direct access to slug parameter
+  return <RoomCanvas roomId={params.roomId} />;
 }
